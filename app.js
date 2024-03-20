@@ -4,7 +4,7 @@ const router = require("./app/routes/index.js");
 
 db.sequelize
 .authenticate()
-.then(() => console.log("Database connected ..."))
+.then(() => console.log("Database connectedd ..."))
 .catch((err) => console.log(err));
 
 const app = express()
