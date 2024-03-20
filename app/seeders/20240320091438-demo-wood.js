@@ -49,7 +49,7 @@ module.exports = {
           updatedAt: new Date()
         },
         {
-          name: "Douglas",
+          name: "Douglass",
           type: "softwood",
           hardness: "tender",
           createdAt: new Date(),
