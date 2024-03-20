@@ -2,6 +2,9 @@
 const {
   Model
 } = require('sequelize');
+const jane = User.build({ name: "Jane" });
+console.log(jane instanceof User); // true
+console.log(jane.name); // "Jane"
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     /**
