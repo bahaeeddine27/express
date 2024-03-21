@@ -8,6 +8,7 @@ const router = express();
 router.get("/", auth, woodCtrl.readAll);
 router.get("/hardness/:hardness", auth, woodCtrl.readByHardness);
 router.post("/", auth, multer, woodCtrl.create);
-router.put("/", auth, multer, woodCtrl.update);
+router.put("/:id", auth, multer, woodCtrl.update);
+router.delete("/:id", auth, multer, woodCtrl.delete);
 
 module.exports = router;

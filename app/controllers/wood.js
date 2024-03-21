@@ -1,4 +1,5 @@
 const { Wood } = require("../models");
+const { remove } = require ("../helpers/image.js");
 
 exports.readAll = async (req, res) => {
   try {
@@ -66,6 +67,30 @@ exports.update = async (req, res) => {
 
     //6. Renvoyer le bois mis à jour
     res.status(200).json(wood);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message || "Some error occurred while updating new wood.",
+    });
+  }
+};
+exports.delete = async (req, res) => {
+  try {
+    // Récuperer l'essence de bois
+    const wood = await Wood.findByPk(req.params.id);
+
+    // Vérifier si elle existe
+    if (!wood) {
+      return res.status(404).json({ error: "Wood not found" });
+    }
+
+    // Dans le cas où on a une image, la supprimer
+    if (wood.image) {
+      await remove(wood.image);
+    }
+    // Supprimer l'essence de bois en BDD (destroy)
+    await wood.destroy();
+    // Renvoyer un code 204 (No content)
+    res.status(204).send();
   } catch (error) {
     res.status(500).json({
       message: error.message || "Some error occurred while updating new wood.",
