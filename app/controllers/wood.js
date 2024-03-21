@@ -25,7 +25,53 @@ exports.readByHardness = async (req, res) => {
     });
   }
 };
+exports.update = async (req, res) => {
+  try {
+    //1. Récuperer l'essence de bois
+    const wood = await Wood.findByPk(req.params.id);
 
+    //2. Vérifier si elle existe
+    if (!wood) {
+      return res.status(404).json({
+        error: "Wood not found",
+      });
+    }
+
+    //3. Parser les datas pour les récupérer
+    let newWood = {
+      ...JSON.parse(req.body.datas),
+    };
+
+    //4. Si on a une nouvelle image
+    if (req.file) {
+      //4A. Reconstruire le chemin de la nouvelle image
+      const pathname = `${req.protocol}://${req.get("host")}/uploads/${
+        req.file.filename
+      }`;
+
+      //4B. Changer le chemin de l'image
+      newWood = {
+        ...newWood,
+        image: pathname,
+      };
+
+      //4C. Dans le cas où il y avait déjà une image, la supprimer
+      if (wood.image) {
+        await remove(wood.image);
+      }
+    }
+
+    //5. Mettre à jour la donnée
+    await wood.update(newWood);
+
+    //6. Renvoyer le bois mis à jour
+    res.status(200).json(wood);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message || "Some error occurred while updating new wood.",
+    });
+  }
+};
 exports.create = async (req, res) => {
   try {
     const pathname = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
