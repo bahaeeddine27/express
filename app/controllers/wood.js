@@ -1,25 +1,42 @@
 const { Wood } = require("../models");
 const { remove } = require ("../helpers/image.js");
+const { generateLinksWood, generateLinksWoodCollection } = require ("../helpers/hateoas.js");
 
 exports.readAll = async (req, res) => {
   try {
-    const woods = await Wood.findAll();
-    res.status(200).json(woods);
+    let woods = await Wood.findAll();
+    woods = woods.map((wood) => {
+      return {
+        ...wood.toJSON(),
+        links: generateLinksWood(wood)
+      };
+    });
+
+    res.status(200).json({woods, links:generateLinksWoodCollection()});
   } catch (error) {
     res.status(500).json({
       message: error.message || "Some error occurred while reading woods.",
     });
   }
 };
+
 exports.readByHardness = async (req, res) => {
   try {
     const hardness = req.params.hardness;
-    const woods = await Wood.findAll({
+    let woods = await Wood.findAll({
       where: {
         hardness: hardness,
       },
     });
-    res.status(200).json(woods);
+    
+    woods = woods.map((wood) => {
+      return {
+        ...wood.toJSON(),
+        links: generateLinksWood(wood),
+      };
+    });
+
+    res.status(200).json({woods, links:generateLinksWoodCollection()});
   } catch (error) {
     res.status(500).json({
       message: error.message || `Some error occurred while reading woods with hardness ${hardness}.`,
@@ -29,7 +46,7 @@ exports.readByHardness = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     //1. Récuperer l'essence de bois
-    const wood = await Wood.findByPk(req.params.id);
+    let wood = await Wood.findByPk(req.params.id);
 
     //2. Vérifier si elle existe
     if (!wood) {
@@ -65,6 +82,10 @@ exports.update = async (req, res) => {
     //5. Mettre à jour la donnée
     await wood.update(newWood);
 
+    wood = {
+      ...wood.toJSON(),
+      links: generateLinksWood(wood),
+    };
     //6. Renvoyer le bois mis à jour
     res.status(200).json(wood);
   } catch (error) {
@@ -100,11 +121,14 @@ exports.delete = async (req, res) => {
 exports.create = async (req, res) => {
   try {
     const pathname = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
-    const wood = await Wood.create({
+    let wood = await Wood.create({
       ...JSON.parse(req.body.datas),
       image: pathname
     });
-
+    wood = {
+      ...wood.toJSON(),
+      links: generateLinksWood(wood),
+    };
     console.log(wood);
 
     res.status(201).json(wood);
